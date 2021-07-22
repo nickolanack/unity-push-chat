@@ -30,7 +30,7 @@ public class ChatArea : MonoBehaviour
     public  List<MonoBehaviour> disableMouseControls;
 
 
-    public delegate void MessageEvent(PushChatChannel chat);
+    public delegate void MessageEvent(PushChatChannel chat, MessageChannel.Message[] messages);
     public List<MessageEvent> onRecievedMessage=new List<MessageEvent>();
     public List<MessageEvent> onSentMessage=new List<MessageEvent>();
 
@@ -81,15 +81,15 @@ public class ChatArea : MonoBehaviour
          * bubble events with chat
          */
         foreach(PushChatChannel chat in rooms){
-            chat.onRecievedMessage.Add(delegate (){
+            chat.onRecievedMessage.Add(delegate (MessageChannel.Message[] messages){
                 foreach(MessageEvent listener in onRecievedMessage){
-                    listener(chat);
+                    listener(chat, messages);
                 }
             });
 
-            chat.onSentMessage.Add(delegate (){
+            chat.onSentMessage.Add(delegate (MessageChannel.Message[] messages){
                 foreach(MessageEvent listener in onSentMessage){
-                    listener(chat);
+                    listener(chat, messages);
                 }
             });
         }

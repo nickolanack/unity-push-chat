@@ -5,7 +5,7 @@ using UnityEngine;
 using System;
 using Newtonsoft.Json.Linq;
 
-public class PushChatChannel : MonoBehaviour
+public class PushChatChannel : MessageChannel
 {
 
 
@@ -15,32 +15,8 @@ public class PushChatChannel : MonoBehaviour
     PushSocketIOClient client=null;
 
 
-    public GameObject messageArea;
-    public GameObject messageTemplate;
 
-    public GameObject lastMessage;
-    public float padY=10;
-
-
-    public Queue<JToken[]> messageQueue=new Queue<JToken[]>();
-
-
-    public delegate void MessageEvent();
-    public List<MessageEvent> onRecievedMessage=new List<MessageEvent>();
-    public List<MessageEvent> onSentMessage=new List<MessageEvent>();
-
-
-    void Start(){
-        if(messageArea==null){
-            messageArea=gameObject;
-
-        }
-
-        messageTemplate.SetActive(false);
-    }
-
-
-    void Update()
+    protected override void Update()
     {
 
         if(client==null){
@@ -48,74 +24,40 @@ public class PushChatChannel : MonoBehaviour
             if(client!=null){
                 PushSocketIOClient.Client.Subscribe(channel, eventType, delegate(JToken[] data){
 
-                    messageQueue.Enqueue(data);
+                    MessageChannel.Message m=new MessageChannel.Message();
+                    m.text=DecodeMessage(data);
+                    QueueRecievedMessage(m);
 
                 });
-
             }
         }
 
+        
+        
+        base.Update();
 
-        if(messageQueue.Count>0){
-            foreach(MessageEvent listener in onRecievedMessage){
-                listener();
+        while(sendQueue.Count>0){
+            if(client!=null&&client.authenticated){
+                client.Send(channel, eventType, EncodeMessage(sendQueue.Dequeue().text));
+               // NotifySend(new MessageChannel.Message[]{m});
             }
         }
-        while(messageQueue.Count>0){
-
-                    JToken[] data=messageQueue.Dequeue();
-
-
-                    GameObject messageObject=(GameObject)Instantiate(messageTemplate, gameObject.transform);
-
-                    ChatMessage message=messageObject.GetComponent<ChatMessage>();
-                    if(message==null){
-                        message=messageObject.AddComponent<ChatMessage>();
-                    }
-                    message.SetText(data[0]["message"].ToObject<string>());
-
-                    
-
-                    if(lastMessage!=null){
-
-                        RectTransform rect=messageObject.GetComponent<RectTransform>();
-                        RectTransform lastRect=lastMessage.GetComponent<RectTransform>();
-
-                        Vector2 targetPosition=rect.anchoredPosition;
-                        targetPosition.y=lastRect.anchoredPosition.y-(lastRect.rect.height+padY);
-
-                        rect.anchoredPosition=targetPosition;
-
-                    }
-
-                    lastMessage=messageObject;
-                    messageObject.SetActive(true);
-
-                   
-        }
-
-
-
-
 
     }
 
 
 
-    public void SendText(string text){
-        if(client!=null&&client.authenticated){
-            client.Send(channel, eventType, Message(text));
-            foreach(MessageEvent listener in onSentMessage){
-                listener();
-            }
-        }
-    }
+    
 
 
-    JObject Message(string message){
+    JObject EncodeMessage(string message){
         return new JObject(
             new JProperty("message", message)
         );
+    }
+
+    string DecodeMessage(JToken[] data){
+        return data[0]["message"].ToObject<string>();
     }
 
 

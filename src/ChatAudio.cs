@@ -23,10 +23,10 @@ public class ChatAudio : MonoBehaviour
         }
 
         if(chatArea){
-            chatArea.onRecievedMessage.Add(delegate(PushChatChannel chat){
+            chatArea.onRecievedMessage.Add(delegate(PushChatChannel chat, MessageChannel.Message[] messages){
                 queue.Enqueue(onRecievedMessage);
             });
-            chatArea.onSentMessage.Add(delegate(PushChatChannel chat){
+            chatArea.onSentMessage.Add(delegate(PushChatChannel chat, MessageChannel.Message[] messages){
                 queue.Enqueue(onSentMessage);
             });
 
@@ -36,10 +36,16 @@ public class ChatAudio : MonoBehaviour
 
     void Update()
     {
+
+        // empties the entire queue, and only plays the first item if multiple events stacked
         while(queue.Count>0){
+
+            
 
             AudioSource audio = GetComponent<AudioSource>();
             AudioClip clip=queue.Dequeue();
+
+
             if(!audio.isPlaying){
                 audio.clip=clip;
                 audio.Play();
