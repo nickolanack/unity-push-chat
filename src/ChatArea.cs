@@ -29,6 +29,12 @@ public class ChatArea : MonoBehaviour
 
     public  List<MonoBehaviour> disableMouseControls;
 
+
+    public delegate void MessageEvent(PushChatChannel chat);
+    public List<MessageEvent> onRecievedMessage=new List<MessageEvent>();
+    public List<MessageEvent> onSentMessage=new List<MessageEvent>();
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,6 +74,26 @@ public class ChatArea : MonoBehaviour
                 inputField.text="";
             });
         }
+
+
+
+        /*
+         * bubble events with chat
+         */
+        foreach(PushChatChannel chat in rooms){
+            chat.onRecievedMessage.Add(delegate (){
+                foreach(MessageEvent listener in onRecievedMessage){
+                    listener(chat);
+                }
+            });
+
+            chat.onSentMessage.Add(delegate (){
+                foreach(MessageEvent listener in onSentMessage){
+                    listener(chat);
+                }
+            });
+        }
+
 
     }
 

@@ -24,6 +24,12 @@ public class PushChatChannel : MonoBehaviour
 
     public Queue<JToken[]> messageQueue=new Queue<JToken[]>();
 
+
+    public delegate void MessageEvent();
+    public List<MessageEvent> onRecievedMessage=new List<MessageEvent>();
+    public List<MessageEvent> onSentMessage=new List<MessageEvent>();
+
+
     void Start(){
         if(messageArea==null){
             messageArea=gameObject;
@@ -50,7 +56,11 @@ public class PushChatChannel : MonoBehaviour
         }
 
 
-
+        if(messageQueue.Count>0){
+            foreach(MessageEvent listener in onRecievedMessage){
+                listener();
+            }
+        }
         while(messageQueue.Count>0){
 
                     JToken[] data=messageQueue.Dequeue();
@@ -95,6 +105,9 @@ public class PushChatChannel : MonoBehaviour
     public void SendText(string text){
         if(client!=null&&client.authenticated){
             client.Send(channel, eventType, Message(text));
+            foreach(MessageEvent listener in onSentMessage){
+                listener();
+            }
         }
     }
 
