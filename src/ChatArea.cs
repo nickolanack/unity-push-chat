@@ -95,6 +95,12 @@ public class ChatArea : MonoBehaviour
         }
 
 
+        if(!open){
+            Vector2 targetPosition = chatArea.anchoredPosition;
+            targetPosition.x=chatArea.rect.width;
+            chatArea.anchoredPosition=targetPosition;
+        }
+
     }
 
     // Update is called once per frame
