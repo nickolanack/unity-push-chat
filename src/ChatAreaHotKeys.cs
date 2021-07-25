@@ -7,12 +7,12 @@ public class ChatAreaHotKeys : MonoBehaviour
     
     public List<KeyCode> openChat=new List<KeyCode>(){KeyCode.LeftControl, KeyCode.T};
     public List<KeyCode> closeChat=new List<KeyCode>(){KeyCode.LeftControl, KeyCode.T};
-    public ChatArea chatArea;
+    public PanelOpener chatArea;
 
     void Start(){
 
         if(chatArea==null){
-            chatArea=gameObject.GetComponent<ChatArea>();
+            chatArea=gameObject.GetComponent<PanelOpener>();
         }
 
     }

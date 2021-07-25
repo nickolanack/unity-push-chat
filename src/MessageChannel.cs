@@ -138,13 +138,15 @@ public class MessageChannel : MonoBehaviour
 
         if(lastMessage!=null){
 
-            RectTransform rect=messageObject.GetComponent<RectTransform>();
-            RectTransform lastRect=lastMessage.GetComponent<RectTransform>();
+            SimpleStack.StackVertical(lastMessage, messageObject, padY);
 
-            Vector2 targetPosition=rect.anchoredPosition;
-            targetPosition.y=lastRect.anchoredPosition.y-(lastRect.rect.height+padY);
+            // RectTransform rect=messageObject.GetComponent<RectTransform>();
+            // RectTransform lastRect=lastMessage.GetComponent<RectTransform>();
 
-            rect.anchoredPosition=targetPosition;
+            // Vector2 targetPosition=rect.anchoredPosition;
+            // targetPosition.y=lastRect.anchoredPosition.y-(lastRect.rect.height+padY);
+
+            // rect.anchoredPosition=targetPosition;
 
         }
 
